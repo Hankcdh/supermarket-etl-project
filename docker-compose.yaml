@@ -1,0 +1,22 @@
+version: '3'
+
+
+
+services:
+  DW_postgres:
+    image: postgres:latest 
+    restart: always
+    ports:
+      - "5440:5441"
+    environment:
+      POSTGRES_DB: source_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    
+  etl_script:
+    build:
+      context: ./etl_scripts # Directory containing the Dockerfile and elt_script.py
+      dockerfile: Dockerfile # Name of the Dockerfile, if it's something other than "Dockerfile", specify here
+    depends_on:
+      - DW_postgres
+      
