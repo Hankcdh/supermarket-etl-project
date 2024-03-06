@@ -1,22 +1,34 @@
 version: '3'
 
-
-
 services:
   DW_postgres:
     image: postgres:latest 
     restart: always
     ports:
-      - "5440:5441"
+      - "5432:5434"
+    networks:
+      - etl_network
     environment:
-      POSTGRES_DB: source_db
+      POSTGRES_DB: stage_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     
   etl_script:
     build:
       context: ./etl_scripts # Directory containing the Dockerfile and elt_script.py
       dockerfile: Dockerfile # Name of the Dockerfile, if it's something other than "Dockerfile", specify here
+    networks:
+      - etl_network
     depends_on:
-      - DW_postgres
+      DW_postgres:
+        condition: service_started
       
+networks:
+  etl_network:
+    driver: bridge
