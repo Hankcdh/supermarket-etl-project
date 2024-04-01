@@ -4,7 +4,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import literal_column
 from sqlalchemy.exc import SQLAlchemyError
 import time 
-
+import pandas as pd
+import subprocess
 
 def initialise_connection_to_DestinationDB(max_retries=5, delay_seconds=5):
     print("Starting Initialisation DestinationDB")
@@ -73,4 +74,19 @@ def initialise_connection_to_SourceDB(max_retries=5, delay_seconds=5):
     print("Failed to connect to SourceDB")
     return False
 
+
+def extract_CSV_to_sourceDB():
+    
+    print("extracting data")
+    print("Display ls command")
+    result = subprocess.run('ls', check=True, capture_output=True, text=True)
+    print(result.stdout)
+
+    print("Display current pwd")
+    result = subprocess.run('pwd', check=True, capture_output=True, text=True)
+    print(result.stdout)
+
+
+    df = pd.read_csv("./dev/source_data/supermarket_sales_samples.csv")
+    print(df)
     

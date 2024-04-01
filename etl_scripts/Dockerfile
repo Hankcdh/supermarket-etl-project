@@ -5,10 +5,10 @@ FROM python:3.8-slim
 WORKDIR /usr/src/app
 
 # Copy the ELT script 
-COPY . .
+# COPY etl_main.py .
 
 RUN pip install SQLAlchemy && pip install psycopg2-binary
-
+RUN pip install pandas
 
 # Set the default command to run the ELT script
-CMD ["python", "etl_main.py"]
+CMD [ "python" , "./dev/etl_main.py" ]

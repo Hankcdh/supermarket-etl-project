@@ -28,6 +28,8 @@ services:
     build:
       context: ./etl_scripts
       dockerfile: Dockerfile
+    volumes:
+      - ./etl_scripts:/usr/src/app/dev
     depends_on:
       - DW_postgres
       - stage_postgres
