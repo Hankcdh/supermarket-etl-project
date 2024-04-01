@@ -2,9 +2,9 @@ version: '3'
 
 services:
   DW_postgres:
-    image: postgres:latest 
+    image: postgres:latest
     ports:
-      - "5432:5434"
+      - "5433:5432"
     networks:
       - etl_network
     environment:
@@ -12,13 +12,25 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
     
+  stage_postgres:
+    image: postgres:latest
+    ports:
+      - "5434:5432"
+    networks:
+      - etl_network
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+
     
   etl_script:
     build:
-      context: ./etl_scripts 
-      dockerfile: Dockerfile 
+      context: ./etl_scripts
+      dockerfile: Dockerfile
     depends_on:
       - DW_postgres
+      - stage_postgres
     networks:
       - etl_network
     
