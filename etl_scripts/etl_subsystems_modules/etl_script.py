@@ -9,6 +9,7 @@ import subprocess
 from sqlalchemy import text
 import json
 
+
 def initialise_connection_to_DestinationDB(max_retries=5, delay_seconds=5):
     print("Starting Initialisation DestinationDB")
     #Define host configuration 
@@ -80,6 +81,7 @@ def initialise_connection_to_SourceDB(max_retries=5, delay_seconds=5):
 def extract_CSV_to_sourceDB():
     print("extracting data")
     df = pd.read_csv("./dev/source_data/supermarket_sales_samples.csv")
+    print("Connecting SourceDB  with ORM Applied")
     postsql_host_config = {"DB_NAME" : 'stage_db',
                             "DB_USER" : 'postgres',
                             "DB_PASS" : 'secret',
@@ -87,9 +89,8 @@ def extract_CSV_to_sourceDB():
                             "DB_PORT" : '5432'}
     conn_string = f'postgresql+psycopg2://{postsql_host_config["DB_USER"]}:{postsql_host_config["DB_PASS"]}@{postsql_host_config["DB_HOST"]}:{postsql_host_config["DB_PORT"]}/{postsql_host_config["DB_NAME"]}'
     SQLAlchemy_engine = create_engine(conn_string)
-
     print("Extracting from CSV to source DB")
-    df.to_sql(name='invoice', con=SQLAlchemy_engine , if_exists='replace')
+    df.to_sql(name='invoice', con=SQLAlchemy_engine , if_exists='append')
 
     print("Returning Reslults FROM SourceDB")
     with SQLAlchemy_engine.connect() as conn:
