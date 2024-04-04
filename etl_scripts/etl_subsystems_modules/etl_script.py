@@ -90,11 +90,44 @@ def extract_CSV_to_sourceDB():
     conn_string = f'postgresql+psycopg2://{postsql_host_config["DB_USER"]}:{postsql_host_config["DB_PASS"]}@{postsql_host_config["DB_HOST"]}:{postsql_host_config["DB_PORT"]}/{postsql_host_config["DB_NAME"]}'
     SQLAlchemy_engine = create_engine(conn_string)
     print("Extracting from CSV to source DB")
-    df.to_sql(name='invoice', con=SQLAlchemy_engine , if_exists='append')
+    
+    #Transformation Matching df column names to ORM names 
+    #alternative method using python.rename() function with dictionary 
+
+    #transform all names into lower cases
+    df.columns = map(str.lower, df.columns)
+    #Replace all names with space with 
+    df.columns = map(lambda x: x.replace(' ', '_'), df.columns)
+    #replace 'tax_5%'  to  tax_5_percemt
+    df = df.rename(columns={"tax_5%" : "tax_5_percent"})
+    #drop excluded columns : gross income and rating
+    df = df.drop(columns=['gross_income' , 'rating'])
+    
+
+    #Transforming all data types to match ORM
+    #remove '-'from invoice_id
+    df['invoice_id'] = df['invoice_id'].apply(lambda x: x.replace('-',''))
+    print(df['invoice_id'])
+
+    #alterte data and time to DateTime
+    df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
+    df = df.drop(columns=['date','time'])
+    print(df.dtypes)
+
+    #update payment type values 'Credit Card' to 'CreditCard' 
+    df['payment'] = df['payment'].replace('Credit card' , 'CreditCard')
+
+    # Load the dataframe to the stage_db in postgreSQL
+    print(df)
+    df.to_sql(name='invoice', con=SQLAlchemy_engine , if_exists='append' , index=False)
+
 
     print("Returning Reslults FROM SourceDB")
     with SQLAlchemy_engine.connect() as conn:
         result = conn.execute(text("SELECT * FROM invoice LIMIT 5")).fetchall()
         print(result)
    
-    
+
+   
+
+
