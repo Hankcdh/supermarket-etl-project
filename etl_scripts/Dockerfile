@@ -9,6 +9,7 @@ WORKDIR /usr/src/app
 
 RUN pip install SQLAlchemy && pip install psycopg2-binary
 RUN pip install pandas
+RUN pip install pytest
 
 # Set the default command to run the ELT script
 CMD [ "python" , "./dev/etl_main.py" ]

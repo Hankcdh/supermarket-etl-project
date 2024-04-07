@@ -78,19 +78,15 @@ def initialise_connection_to_SourceDB(max_retries=5, delay_seconds=5):
     return False
 
 
-def extract_CSV_to_sourceDB():
-    print("extracting data")
-    df = pd.read_csv("./dev/source_data/supermarket_sales_samples.csv")
-    print("Connecting SourceDB  with ORM Applied")
-    postsql_host_config = {"DB_NAME" : 'stage_db',
-                            "DB_USER" : 'postgres',
-                            "DB_PASS" : 'secret',
-                            "DB_HOST" : 'stage_postgres',
-                            "DB_PORT" : '5432'}
-    conn_string = f'postgresql+psycopg2://{postsql_host_config["DB_USER"]}:{postsql_host_config["DB_PASS"]}@{postsql_host_config["DB_HOST"]}:{postsql_host_config["DB_PORT"]}/{postsql_host_config["DB_NAME"]}'
-    SQLAlchemy_engine = create_engine(conn_string)
-    print("Extracting from CSV to source DB")
+def extract_sourceCSV():
+    df = pd.read_csv("/usr/src/app/dev/source_data/supermarket_sales_samples.csv")
+    return df
     
+   
+
+def transform_sourceCSV(df):
+    print("transfroming source CSV data")
+
     #Transformation Matching df column names to ORM names 
     #alternative method using python.rename() function with dictionary 
 
@@ -99,6 +95,7 @@ def extract_CSV_to_sourceDB():
     #Replace all names with space with 
     df.columns = map(lambda x: x.replace(' ', '_'), df.columns)
     #replace 'tax_5%'  to  tax_5_percemt
+    
     df = df.rename(columns={"tax_5%" : "tax_5_percent"})
     #drop excluded columns : gross income and rating
     df = df.drop(columns=['gross_income' , 'rating'])
@@ -107,18 +104,30 @@ def extract_CSV_to_sourceDB():
     #Transforming all data types to match ORM
     #remove '-'from invoice_id
     df['invoice_id'] = df['invoice_id'].apply(lambda x: x.replace('-',''))
-    print(df['invoice_id'])
+    #print(df['invoice_id'])
 
     #alterte data and time to DateTime
     df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
     df = df.drop(columns=['date','time'])
-    print(df.dtypes)
+    #print(df.dtypes)
 
     #update payment type values 'Credit Card' to 'CreditCard' 
     df['payment'] = df['payment'].replace('Credit card' , 'CreditCard')
+    return df
 
+
+def load_sourceCSV_to_sourceDB(df):
+    print("Connecting SourceDB  with ORM Applied")
+    postsql_host_config = {"DB_NAME" : 'stage_db',
+                            "DB_USER" : 'postgres',
+                            "DB_PASS" : 'secret',
+                            "DB_HOST" : 'stage_postgres',
+                            "DB_PORT" : '5432'}
+    conn_string = f'postgresql+psycopg2://{postsql_host_config["DB_USER"]}:{postsql_host_config["DB_PASS"]}@{postsql_host_config["DB_HOST"]}:{postsql_host_config["DB_PORT"]}/{postsql_host_config["DB_NAME"]}'
+    SQLAlchemy_engine = create_engine(conn_string)
+    print("extract sourceCSV to SourceDB")
     # Load the dataframe to the stage_db in postgreSQL
-    print(df)
+    #print(df)
     df.to_sql(name='invoice', con=SQLAlchemy_engine , if_exists='append' , index=False)
 
 
@@ -126,8 +135,4 @@ def extract_CSV_to_sourceDB():
     with SQLAlchemy_engine.connect() as conn:
         result = conn.execute(text("SELECT * FROM invoice LIMIT 5")).fetchall()
         print(result)
-   
-
-   
-
 
