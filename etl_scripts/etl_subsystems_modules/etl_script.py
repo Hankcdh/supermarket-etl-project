@@ -79,8 +79,11 @@ def initialise_connection_to_SourceDB(max_retries=5, delay_seconds=5):
 
 
 def extract_sourceCSV():
-    df = pd.read_csv("/usr/src/app/dev/source_data/supermarket_sales_samples.csv")
-    return df
+    sample_csv = "/usr/src/app/dev/source_data/supermarket_sales_samples.csv"
+    full_csv = "/usr/src/app/dev/source_data/supermarket_sales.csv"
+    df = pd.read_csv(full_csv)
+    df_clean = clean_source_csv(df)
+    return df_clean
     
    
 
@@ -136,3 +139,22 @@ def load_sourceCSV_to_sourceDB(df):
         result = conn.execute(text("SELECT * FROM invoice LIMIT 5")).fetchall()
         print(result)
 
+def source_test():
+    try:
+        target_directory = "./dev/etl_subsystems_modules"
+        result = subprocess.run(["python" ,"-u", "-m" , "pytest"] , check=True , capture_output=True, text=True, cwd=target_directory )
+        print(result.stdout)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error in source data not passing quality test: {e}")
+        print(e.stdout)
+        print("The source data did not pass the screen quality test")
+        return False
+    
+def clean_source_csv(df):
+    # Hard Codded
+    df.replace('', pd.NA, inplace=True)
+    df_dropna = df.dropna()
+    df_clean = df_dropna.drop_duplicates(subset = ['Invoice ID'])
+    print("cleaning completed")
+    return df_clean

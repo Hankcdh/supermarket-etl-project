@@ -35,6 +35,8 @@ services:
       - stage_postgres
     networks:
       - etl_network
+    environment:
+      - PYTHONUNBUFFERED=1
     
       
 networks:
