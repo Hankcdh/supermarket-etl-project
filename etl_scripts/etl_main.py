@@ -1,5 +1,7 @@
 from etl_subsystems_modules import etl_script
 from etl_subsystems_modules import sourceDB_ORM_script
+from etl_subsystems_modules import Data_Warehouse_DB_ORM
+
 import subprocess 
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -14,6 +16,7 @@ if not etl_script.initialise_connection_to_DestinationDB() & etl_script.initiali
 
 #Create ORM mapping to the sourceDB
 sourceDB_ORM_script.connect_sourceDB_ORM()
+
 
 #pytesting the pipeline and execute
 #extracting source data from CSV format into stage database -> SourceDB
@@ -30,6 +33,9 @@ except SQLAlchemyError as err:
             print(f"SQLAlchemyError: {err}")
     
 
+
+#Create ORM mapping to the Data Warehouse Database 
+Data_Warehouse_DB_ORM.connect_data_warehouse_DB_ORM()
 
 
 

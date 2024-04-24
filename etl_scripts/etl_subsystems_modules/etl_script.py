@@ -79,6 +79,7 @@ def initialise_connection_to_SourceDB(max_retries=5, delay_seconds=5):
 
 
 def extract_sourceCSV():
+    # Hard Coded
     sample_csv = "/usr/src/app/dev/source_data/supermarket_sales_samples.csv"
     full_csv = "/usr/src/app/dev/source_data/supermarket_sales.csv"
     df = pd.read_csv(full_csv)
