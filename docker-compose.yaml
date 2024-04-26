@@ -12,6 +12,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
     
+    
   stage_postgres:
     image: postgres:latest
     ports:

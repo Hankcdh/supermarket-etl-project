@@ -159,3 +159,43 @@ def clean_source_csv(df):
     df_clean = df_dropna.drop_duplicates(subset = ['Invoice ID'])
     print("cleaning completed")
     return df_clean
+
+
+import psycopg2
+import os 
+
+def print_cursor_info(cursor):
+    print(f"Row count: {cursor.rowcount}\n Status Message: {cursor.statusmessage}\n Query: {cursor.query}")
+
+
+def implement_data_warehouse_model_sql(file_path):
+    postsql_host_config = {"DB_NAME" : 'DW_db',
+                            "DB_USER" : 'postgres',
+                            "DB_PASS" : 'secret',
+                            "DB_HOST" : 'DW_postgres',
+                            "DB_PORT" : '5432'}
+    
+    conn = psycopg2.connect(
+    database="DW_db",
+    user='postgres',
+    password='secret',
+    host='DW_postgres',
+    port='5432'
+    )
+    
+    with open(file_path, 'r') as file:
+        file_content = file.read()
+    
+    raw_sql = file_content
+    cur = conn.cursor()
+    try:
+        result = cur.execute(raw_sql)
+        print(cur.statusmessage)
+        # print_cursor_info(cur)
+        cur.close()
+        conn.commit()
+    except psycopg2 as err:
+        print(err)
+    finally:
+        conn.close()
+        print(f"Complete execeting SQL file {os.path.basename(file_path)}")
