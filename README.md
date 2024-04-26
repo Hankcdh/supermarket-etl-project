@@ -1,3 +1,11 @@
+# supermarket etl project 
+The goal of the project is simple to implement etl process of csv data from a operaltiona data source into a sql database (postgreSQL). 
+Within the relational database , we do not just want  relational tables but design a data warehouse model for a better BI query times and report generation.
+Data warehouse design  will be follwing kimball's design pattern by implementing fact tables and dimension tables.
+
+For more details see the full documentation on my notion page : 
+- [Link](https://freckle-rocket-5ff.notion.site/Supermarket-Sales-DW-1ab11ade15c74612bdb73ef2ca0f99f2)
+
 # Debug postgresql using psql 
 - command run in docker main directory 
 - checking out target postgres content "target_DB_name"
